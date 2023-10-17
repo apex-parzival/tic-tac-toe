@@ -1,0 +1,143 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define SIZE 3
+
+char board[SIZE][SIZE];
+
+void initializeBoard() {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            board[i][j] = ' ';
+        }
+    }
+}
+
+void displayBoard() {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            printf(" %c ", board[i][j]);
+            if (j < SIZE - 1) {
+                printf("|");
+            }
+        }
+        printf("\n");
+        if (i < SIZE - 1) {
+            printf("---+---+---\n");
+        }
+    }
+}
+
+int isBoardFull() {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            if (board[i][j] == ' ') {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+int isWinner(char player) {
+    // Check rows, columns, and diagonals
+    for (int i = 0; i < SIZE; i++) {
+        if (board[i][0] == player && board[i][1] == player && board[i][2] == player) {
+            return 1;
+        }
+        if (board[0][i] == player && board[1][i] == player && board[2][i] == player) {
+            return 1;
+        }
+    }
+    if (board[0][0] == player && board[1][1] == player && board[2][2] == player) {
+        return 1;
+    }
+    if (board[0][2] == player && board[1][1] == player && board[2][0] == player) {
+        return 1;
+    }
+    return 0;
+}
+
+int makeMove(int row, int col, char player) {
+    if (row < 0 || row >= SIZE || col < 0 || col >= SIZE || board[row][col] != ' ') {
+        return 0; // Invalid move
+    }
+    board[row][col] = player;
+    return 1; // Valid move
+}
+
+int getRandomMove(int* row, int* col) {
+    int availableMoves[SIZE * SIZE][2];
+    int count = 0;
+
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            if (board[i][j] == ' ') {
+                availableMoves[count][0] = i;
+                availableMoves[count][1] = j;
+                count++;
+            }
+        }
+    }
+
+    if (count == 0) {
+        *row = -1;
+        *col = -1;
+        return 0; // No available moves
+    }
+
+    int randomIndex = rand() % count;
+    *row = availableMoves[randomIndex][0];
+    *col = availableMoves[randomIndex][1];
+    return 1;
+}
+
+int main() {
+    initializeBoard();
+    srand(time(NULL));
+    
+    printf("Welcome to Tic-Tac-Toe! You are 'X', and the AI is 'O'.\n");
+
+    while (1) {
+        int userRow, userCol, aiRow, aiCol;
+
+        displayBoard();
+
+        printf("Your turn. Enter row and column (e.g., 1 2): ");
+        scanf("%d %d", &userRow, &userCol);
+
+        if (makeMove(userRow - 1, userCol - 1, 'X')) {
+            if (isWinner('X')) {
+                displayBoard();
+                printf("You win!\n");
+                break;
+            } else if (isBoardFull()) {
+                displayBoard();
+                printf("It's a draw!\n");
+                break;
+            }
+
+            if (getRandomMove(&aiRow, &aiCol)) {
+                makeMove(aiRow, aiCol, 'O');
+                if (isWinner('O')) {
+                    displayBoard();
+                    printf("AI wins!\n");
+                    break;
+                } else if (isBoardFull()) {
+                    displayBoard();
+                    printf("It's a draw!\n");
+                    break;
+                }
+            } else {
+                displayBoard();
+                printf("No more moves. It's a draw!\n");
+                break;
+            }
+        } else {
+            printf("Invalid move. Try again.\n");
+        }
+    }
+
+    return 0;
+}
