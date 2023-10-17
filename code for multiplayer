@@ -1,0 +1,97 @@
+#include <stdio.h>
+
+#define SIZE 3
+
+char board[SIZE][SIZE];
+
+void initializeBoard() {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            board[i][j] = ' ';
+        }
+    }
+}
+
+void displayBoard() {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            printf(" %c ", board[i][j]);
+            if (j < SIZE - 1) {
+                printf("|");
+            }
+        }
+        printf("\n");
+        if (i < SIZE - 1) {
+            printf("---+---+---\n");
+        }
+    }
+}
+
+int isBoardFull() {
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            if (board[i][j] == ' ') {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+int isWinner(char player) {
+    // Check rows, columns, and diagonals
+    for (int i = 0; i < SIZE; i++) {
+        if (board[i][0] == player && board[i][1] == player && board[i][2] == player) {
+            return 1;
+        }
+        if (board[0][i] == player && board[1][i] == player && board[2][i] == player) {
+            return 1;
+        }
+    }
+    if (board[0][0] == player && board[1][1] == player && board[2][2] == player) {
+        return 1;
+    }
+    if (board[0][2] == player && board[1][1] == player && board[2][0] == player) {
+        return 1;
+    }
+    return 0;
+}
+
+int makeMove(int row, int col, char player) {
+    if (row < 0 || row >= SIZE || col < 0 || col >= SIZE || board[row][col] != ' ') {
+        return 0; // Invalid move
+    }
+    board[row][col] = player;
+    return 1; // Valid move
+}
+
+int main() {
+    initializeBoard();
+    int currentPlayer = 1;
+    int row, col;
+
+    printf("Welcome to Tic-Tac-Toe!\n");
+
+    while (1) {
+        displayBoard();
+        currentPlayer = (currentPlayer == 1) ? 2 : 1;
+        printf("Player %d, enter row and column (e.g., 1 2): ", currentPlayer);
+        scanf("%d %d", &row, &col);
+
+        if (makeMove(row - 1, col - 1, (currentPlayer == 1) ? 'X' : 'O')) {
+            if (isWinner((currentPlayer == 1) ? 'X' : 'O')) {
+                displayBoard();
+                printf("Player %d wins!\n", currentPlayer);
+                break;
+            } else if (isBoardFull()) {
+                displayBoard();
+                printf("It's a draw!\n");
+                break;
+            }
+        } else {
+            printf("Invalid move. Try again.\n");
+        }
+    }
+
+    return 0;
+}
